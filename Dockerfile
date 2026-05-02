@@ -25,6 +25,10 @@ COPY client ./client
 
 # Generate the Prisma client and build the Vite static bundle.
 RUN npx prisma generate --schema=server/prisma/schema.prisma
+
+# Vite bakes VITE_* env vars into the bundle at build time.
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 RUN npm run build --workspace=client
 
 # ─── Stage 2: runtime ────────────────────────────────────────────────────────

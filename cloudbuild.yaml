@@ -18,6 +18,9 @@ substitutions:
   _REGION: us-central1
   _SERVICE: disch
   _REPOSITORY: disch # Artifact Registry repo name
+  # Google OAuth client ID — public, baked into the client bundle and used by
+  # the server to verify ID tokens. Set on the Cloud Build trigger.
+  _GOOGLE_CLIENT_ID: ""
 
 options:
   logging: CLOUD_LOGGING_ONLY
@@ -43,6 +46,7 @@ steps:
     args:
       - build
       - --cache-from=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:latest
+      - --build-arg=VITE_GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID}
       - -t=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:${BUILD_ID}
       - -t=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/${_SERVICE}:latest
       - .
@@ -79,7 +83,7 @@ steps:
       - --max-instances=3
       - --memory=512Mi
       - --cpu=1
-      - --update-env-vars=NODE_ENV=production
+      - --update-env-vars=NODE_ENV=production,GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID}
       - --update-secrets=DATABASE_URL=disch-database-url:latest,ADMIN_PASSWORD=disch-admin-password:latest,COOKIE_SECRET=disch-cookie-secret:latest
 
 timeout: 1200s
