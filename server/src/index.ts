@@ -54,7 +54,10 @@ app.use(((err, _req, res, _next) => {
     .json({ error: "internal_error", message: "Something went wrong on the server" });
 }) as express.ErrorRequestHandler);
 
-app.listen(env.PORT, () => {
+// Bind explicitly to 0.0.0.0 — Node's default can be IPv6-only on some
+// container runtimes (including some Cloud Run images), which makes the
+// IPv4 startup probe time out.
+app.listen(env.PORT, "0.0.0.0", () => {
   // eslint-disable-next-line no-console
-  console.log(`disch server listening on :${env.PORT}`);
+  console.log(`disch server listening on 0.0.0.0:${env.PORT}`);
 });

@@ -38,11 +38,11 @@ export function EntryRoute() {
           DISCH MARKET
         </div>
         <div className="text-display text-fg mb-[6px]">
-          Crowd wisdom
+          Charter Club's
           <br />
-          for who's
+          2nd annual
           <br />
-          sending it.
+          Disch.
         </div>
         <div className="text-[14px] text-fg3 leading-[1.5] mt-3">
           Prediction markets for the Disch.
