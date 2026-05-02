@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #F5F4F1;
+  --bg2: #EFEDE9;
+  --fg: #0F0F0E;
+  --fg2: #5A5955;
+  --fg3: #9A9895;
+  --border: #E0DDD8;
+  --accent: oklch(72% 0.22 142);
+  --accent-dim: oklch(72% 0.22 142 / 0.12);
+  --accent-mid: oklch(72% 0.22 142 / 0.4);
+  --red: oklch(62% 0.18 25);
+  --red-dim: oklch(62% 0.18 25 / 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mobile-only container — keeps the layout from sprawling on desktop. */
+.mobile-shell {
+  width: 100%;
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100dvh;
+  background: var(--bg);
+  position: relative;
+}

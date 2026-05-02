@@ -1,0 +1,54 @@
+// Disch Market — Postgres schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MarketType {
+  YES_NO
+  PICK_PERSON
+}
+
+model Voter {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  votes     Vote[]
+}
+
+model Attendee {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model Market {
+  id               String     @id @default(uuid()) @db.Uuid
+  question         String
+  type             MarketType
+  closeAt          DateTime   @db.Timestamptz(6)
+  // For YES_NO: "yes" | "no". For PICK_PERSON: Attendee.id (uuid string).
+  resolvedOptionId String?
+  createdAt        DateTime   @default(now()) @db.Timestamptz(6)
+  votes            Vote[]
+}
+
+model Vote {
+  id          String   @id @default(uuid()) @db.Uuid
+  marketId    String   @db.Uuid
+  voterId     String   @db.Uuid
+  // For YES_NO: "yes" | "no". For PICK_PERSON: attendee.id.
+  optionValue String
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  voter  Voter  @relation(fields: [voterId], references: [id], onDelete: Cascade)
+
+  @@unique([marketId, voterId], name: "one_vote_per_voter_per_market")
+  @@index([marketId])
+}
