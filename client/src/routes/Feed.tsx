@@ -11,17 +11,21 @@ export function FeedRoute() {
   const navigate = useNavigate();
   const me = useMe();
 
-  // Bounce to entry if me has resolved with no voter cookie.
+  // Bounce to entry if me resolved with no voter cookie or failed to load.
   useEffect(() => {
-    if (me.isSuccess && !me.data?.id) {
+    if ((me.isSuccess && !me.data?.id) || me.isError) {
       navigate("/", { replace: true });
     }
-  }, [me.isSuccess, me.data, navigate]);
+  }, [me.isSuccess, me.isError, me.data, navigate]);
 
   // Don't render — and don't kick off markets/attendees fetches — until the
   // voter session is confirmed. Server-side endpoints also require it.
   if (!me.data?.id) {
-    return <div className="min-h-[100dvh] bg-bg" />;
+    return (
+      <div className="min-h-[100dvh] bg-bg grid place-items-center text-fg3 text-[14px]">
+        Loading…
+      </div>
+    );
   }
 
   return <FeedContent me={me.data} />;

@@ -17,13 +17,17 @@ export function MarketDetailRoute() {
   const me = useMe();
 
   useEffect(() => {
-    if (me.isSuccess && !me.data?.id) {
+    if ((me.isSuccess && !me.data?.id) || me.isError) {
       navigate("/", { replace: true });
     }
-  }, [me.isSuccess, me.data, navigate]);
+  }, [me.isSuccess, me.isError, me.data, navigate]);
 
   if (!me.data?.id) {
-    return <div className="min-h-[100dvh] bg-bg" />;
+    return (
+      <div className="min-h-[100dvh] bg-bg grid place-items-center text-fg3 text-[14px]">
+        Loading…
+      </div>
+    );
   }
 
   return <MarketDetailContent id={id} />;

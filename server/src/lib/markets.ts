@@ -101,10 +101,15 @@ export function toDTO(
 }
 
 export function sortMarkets(markets: MarketDTO[]): MarketDTO[] {
-  // OPEN by closeAt asc, then CLOSED unresolved by closeAt asc, then RESOLVED by createdAt desc.
-  const order: Record<MarketStatus, number> = { OPEN: 0, CLOSED: 1, RESOLVED: 2 };
+  // PENDING (no vote cast) before VOTED, each group ordered by total votes desc.
+  // Ties fall back to status (OPEN > CLOSED > RESOLVED) and then closeAt asc / createdAt desc.
+  const statusOrder: Record<MarketStatus, number> = { OPEN: 0, CLOSED: 1, RESOLVED: 2 };
   return [...markets].sort((a, b) => {
-    if (a.status !== b.status) return order[a.status] - order[b.status];
+    const aPending = a.myVote == null ? 0 : 1;
+    const bPending = b.myVote == null ? 0 : 1;
+    if (aPending !== bPending) return aPending - bPending;
+    if (a.aggregate.total !== b.aggregate.total) return b.aggregate.total - a.aggregate.total;
+    if (a.status !== b.status) return statusOrder[a.status] - statusOrder[b.status];
     if (a.status === "RESOLVED") {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
