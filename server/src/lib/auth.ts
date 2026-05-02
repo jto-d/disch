@@ -40,3 +40,11 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
   next();
 }
+
+export function requireVoter(req: Request, res: Response, next: NextFunction) {
+  if (getVoterId(req) || isAdmin(req)) {
+    next();
+    return;
+  }
+  res.status(401).json({ error: "unauthorized", message: "Sign in required" });
+}

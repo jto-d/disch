@@ -2,11 +2,13 @@ import { Router } from "express";
 import { Prisma } from "@prisma/client";
 import { CastVoteReq } from "@disch/shared";
 import { prisma } from "../lib/prisma.js";
-import { getVoterId } from "../lib/auth.js";
+import { getVoterId, requireVoter } from "../lib/auth.js";
 import { sortMarkets, toDTO, deriveStatus } from "../lib/markets.js";
 import { validateBody } from "../lib/validate.js";
 
 export const marketsRouter = Router();
+
+marketsRouter.use(requireVoter);
 
 marketsRouter.get("/", async (req, res) => {
   const voterId = getVoterId(req);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { VoterDTO } from "@disch/shared";
 import { LiveDot } from "../components/LiveDot";
 import { MarketCard } from "../components/MarketCard";
 import { useAttendees, useMarkets, useMe } from "../lib/hooks";
@@ -9,16 +10,28 @@ type FeedFilter = "ALL" | "PENDING" | "VOTED";
 export function FeedRoute() {
   const navigate = useNavigate();
   const me = useMe();
-  const markets = useMarkets();
-  const attendees = useAttendees();
-  const [filter, setFilter] = useState<FeedFilter>("ALL");
 
-  // Bounce to entry if no voter cookie.
+  // Bounce to entry if me has resolved with no voter cookie.
   useEffect(() => {
     if (me.isSuccess && !me.data?.id) {
       navigate("/", { replace: true });
     }
   }, [me.isSuccess, me.data, navigate]);
+
+  // Don't render — and don't kick off markets/attendees fetches — until the
+  // voter session is confirmed. Server-side endpoints also require it.
+  if (!me.data?.id) {
+    return <div className="min-h-[100dvh] bg-bg" />;
+  }
+
+  return <FeedContent me={me.data} />;
+}
+
+function FeedContent({ me }: { me: VoterDTO }) {
+  const navigate = useNavigate();
+  const markets = useMarkets();
+  const attendees = useAttendees();
+  const [filter, setFilter] = useState<FeedFilter>("ALL");
 
   const all = markets.data ?? [];
   const list =
@@ -47,9 +60,9 @@ export function FeedRoute() {
           </div>
         </div>
         <div className="flex items-center gap-[10px]">
-          {me.data?.name && (
+          {me.name && (
             <div className="text-[12px] font-medium text-fg2 bg-bg2 px-[10px] py-1 rounded-lg">
-              {me.data.name}
+              {me.name}
             </div>
           )}
           <button

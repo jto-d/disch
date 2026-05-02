@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "../components/BackButton";
 import { Countdown } from "../components/Countdown";
@@ -7,11 +8,28 @@ import { YesNoResult } from "../components/YesNoResult";
 import { PickResult } from "../components/PickResult";
 import { YesNoVoteUI } from "../components/YesNoVoteUI";
 import { PickVoteUI } from "../components/PickVoteUI";
-import { useAttendees, useCastVote, useMarket } from "../lib/hooks";
+import { useAttendees, useCastVote, useMarket, useMe } from "../lib/hooks";
 import { useToast } from "../components/Toast";
 
 export function MarketDetailRoute() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const me = useMe();
+
+  useEffect(() => {
+    if (me.isSuccess && !me.data?.id) {
+      navigate("/", { replace: true });
+    }
+  }, [me.isSuccess, me.data, navigate]);
+
+  if (!me.data?.id) {
+    return <div className="min-h-[100dvh] bg-bg" />;
+  }
+
+  return <MarketDetailContent id={id} />;
+}
+
+function MarketDetailContent({ id }: { id: string | undefined }) {
   const navigate = useNavigate();
   const market = useMarket(id);
   const attendees = useAttendees();

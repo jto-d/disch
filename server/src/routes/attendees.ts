@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { CreateAttendeeReq, UpdateAttendeeReq } from "@disch/shared";
 import { prisma } from "../lib/prisma.js";
-import { requireAdmin } from "../lib/auth.js";
+import { requireAdmin, requireVoter } from "../lib/auth.js";
 import { validateBody } from "../lib/validate.js";
 
 export const attendeesRouter = Router();
 
-// Public: list active attendees (for the voting UI).
-attendeesRouter.get("/", async (_req, res) => {
+// Signed-in voters (or admin) can list active attendees for the voting UI.
+attendeesRouter.get("/", requireVoter, async (_req, res) => {
   const list = await prisma.attendee.findMany({
     where: { active: true },
     orderBy: { createdAt: "asc" },
