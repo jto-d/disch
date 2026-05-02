@@ -33,8 +33,8 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
 
 export const api = {
   // voter
-  createVoter(name: string) {
-    return req<VoterDTO>("POST", "/api/voter", { name });
+  signInWithGoogle(idToken: string) {
+    return req<VoterDTO>("POST", "/api/voter/google", { idToken });
   },
   getMe() {
     return req<VoterDTO | undefined>("GET", "/api/voter/me");

@@ -8,6 +8,33 @@ import {
 } from "../lib/hooks";
 import { useToast } from "../components/Toast";
 
+const DEFAULT_CLOSE_TIME_KEY = "disch.defaultCloseTime";
+const FALLBACK_DEFAULT_TIME = "23:59";
+
+function readDefaultCloseTime(): string {
+  if (typeof window === "undefined") return FALLBACK_DEFAULT_TIME;
+  const stored = window.localStorage.getItem(DEFAULT_CLOSE_TIME_KEY);
+  return stored && /^\d{2}:\d{2}$/.test(stored) ? stored : FALLBACK_DEFAULT_TIME;
+}
+
+function buildCloseAtFromTime(time: string): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}T${time}`;
+}
+
+function formatTimeLabel(time: string): string {
+  const [hStr, mStr] = time.split(":");
+  const h = Number(hStr);
+  const m = Number(mStr);
+  if (Number.isNaN(h) || Number.isNaN(m)) return time;
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
 export function AdminMarkets() {
   const markets = useMarkets();
   const create = useCreateMarket();
@@ -19,9 +46,24 @@ export function AdminMarkets() {
   const [q, setQ] = useState("");
   const [type, setType] = useState<MarketType>("YES_NO");
   const [closeAt, setCloseAt] = useState("");
+  const [defaultCloseTime, setDefaultCloseTime] = useState(readDefaultCloseTime);
+  const [editingDefault, setEditingDefault] = useState(false);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [confirmOption, setConfirmOption] = useState<{ id: string; label: string } | null>(null);
+
+  const openCreate = () => {
+    setCloseAt(buildCloseAtFromTime(defaultCloseTime));
+    setShowCreate(true);
+  };
+
+  const saveDefaultCloseTime = (time: string) => {
+    if (!/^\d{2}:\d{2}$/.test(time)) return;
+    window.localStorage.setItem(DEFAULT_CLOSE_TIME_KEY, time);
+    setDefaultCloseTime(time);
+    setCloseAt(buildCloseAtFromTime(time));
+    setEditingDefault(false);
+  };
 
   const submit = () => {
     if (!q.trim() || !closeAt) return;
@@ -72,7 +114,7 @@ export function AdminMarkets() {
       {!showCreate ? (
         <button
           type="button"
-          onClick={() => setShowCreate(true)}
+          onClick={openCreate}
           className="w-full py-[13px] mb-4 text-[14px] font-bold cursor-pointer min-h-[44px]"
           style={{
             background: "var(--fg)",
@@ -139,6 +181,36 @@ export function AdminMarkets() {
               className="w-full px-3 py-[11px] text-[13px] font-mono bg-bg text-fg outline-none"
               style={{ border: "1px solid var(--border)", borderRadius: 8 }}
             />
+            <div className="mt-[6px] flex items-center gap-2 text-[11px] text-fg3">
+              {editingDefault ? (
+                <>
+                  <span>Default</span>
+                  <input
+                    type="time"
+                    defaultValue={defaultCloseTime}
+                    onBlur={(e) => saveDefaultCloseTime(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveDefaultCloseTime(e.currentTarget.value);
+                      if (e.key === "Escape") setEditingDefault(false);
+                    }}
+                    autoFocus
+                    className="px-[6px] py-[2px] text-[11px] font-mono bg-bg text-fg outline-none"
+                    style={{ border: "1px solid var(--border)", borderRadius: 4 }}
+                  />
+                </>
+              ) : (
+                <>
+                  <span>Default: {formatTimeLabel(defaultCloseTime)} today</span>
+                  <button
+                    type="button"
+                    onClick={() => setEditingDefault(true)}
+                    className="text-fg2 underline cursor-pointer bg-transparent border-0 p-0 text-[11px]"
+                  >
+                    change
+                  </button>
+                </>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <button

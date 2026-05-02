@@ -78,10 +78,10 @@ export const MarketDTO = z.discriminatedUnion("type", [
 export type MarketDTO = z.infer<typeof MarketDTO>;
 
 // ─── Request schemas ─────────────────────────────────────────────────────────
-export const CreateVoterReq = z.object({
-  name: z.string().trim().min(1).max(40),
+export const GoogleSignInReq = z.object({
+  idToken: z.string().min(1),
 });
-export type CreateVoterReq = z.infer<typeof CreateVoterReq>;
+export type GoogleSignInReq = z.infer<typeof GoogleSignInReq>;
 
 export const CastVoteReq = z.object({
   optionValue: z.string().min(1),

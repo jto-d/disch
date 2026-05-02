@@ -16,10 +16,10 @@ export function useMe() {
   });
 }
 
-export function useCreateVoter() {
+export function useSignInWithGoogle() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => api.createVoter(name),
+    mutationFn: (idToken: string) => api.signInWithGoogle(idToken),
     onSuccess: (voter) => {
       qc.setQueryData(["me"], voter);
     },
