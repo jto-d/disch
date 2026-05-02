@@ -17,7 +17,9 @@ export function FeedRoute() {
     }
   }, [me.isSuccess, me.data, navigate]);
 
-  const list = markets.data ?? [];
+  const list = [...(markets.data ?? [])].sort(
+    (a, b) => b.aggregate.total - a.aggregate.total
+  );
 
   return (
     <div className="min-h-[100dvh] bg-bg">
